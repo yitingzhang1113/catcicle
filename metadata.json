@@ -1,0 +1,8 @@
+{
+  "name": "CatCircle",
+  "description": "An AI-powered social network for cat owners featuring Vet-RAG health assistance, automated post generation, and community-driven support.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
