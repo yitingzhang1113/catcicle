@@ -1,21 +1,67 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# CatCircle
 
-# Run and deploy your AI Studio app
+A Vite + React + TypeScript web app for cat lovers — explore a feed, discover content, and chat with AI assistants (Cat Assistant / Vet Assistant).
 
-This contains everything you need to run your app locally.
+## ✨ Features
 
-View your app in AI Studio: https://ai.studio/apps/drive/1UpwJoHY3By76S7IjF6_Dgg8LIfosGnBm
+- **Feed / Discover / Profile / Mall** pages
+- **Post creator** for new content
+- **AI Assistants**
+  - `CatAssistant`: general cat-related help
+  - `VetAssistant`: health Q&A (informational only)
+- Uses a local mock data layer / local storage for quick iteration
 
-## Run Locally
+## 🧱 Tech Stack
 
-**Prerequisites:**  Node.js
+- React + TypeScript
+- Vite
 
+## 🚀 Run locally
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
-# catcicle
+### Prerequisites
+
+- Node.js (recommended: LTS)
+
+### Install & start
+
+1. Install dependencies
+
+   ```bash
+   npm install
+   ```
+
+2. (Optional) Configure Gemini API key
+
+   If you want the AI assistants to work, create a local env file and set your key:
+
+   ```bash
+   cp .env.local.example .env.local
+   ```
+
+   Then set:
+
+   ```
+   GEMINI_API_KEY=YOUR_KEY_HERE
+   ```
+
+   If you don’t have AI configured, the app should still run, but AI features may be disabled.
+
+3. Start the dev server
+
+   ```bash
+   npm run dev
+   ```
+
+## 🗂️ Project structure (high level)
+
+- `components/` — UI pages & widgets
+- `services/` — API / Gemini / local DB helpers
+- `mockData.ts` — sample content used in the app
+
+## 🔒 Notes
+
+- `VetAssistant` content is not medical advice. For emergencies or serious concerns, contact a licensed veterinarian.
+
+## 📄 License
+
+Add a license if you plan to open-source this project.
