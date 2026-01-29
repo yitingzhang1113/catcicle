@@ -27,7 +27,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, owner, onLog
         onClick={() => setActiveTab('feed')}
       >
         <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center overflow-hidden shadow-lg shadow-amber-100 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
-          <img src="https://api.typedream.com/v0/document/public/ac662580-562a-43f1-9c3e-8f65457f002b_logo_png" alt="CatCircle Logo" className="w-full h-full object-cover" />
+          <img src="/logo.svg" alt="CatCircle Logo" className="w-full h-full object-cover" />
         </div>
         <h1 className="text-2xl font-black text-amber-600 tracking-tighter">CatCircle</h1>
       </div>
