@@ -95,7 +95,7 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
         <div className="text-center mb-12">
           {/* Main Brand Logo */}
           <div className="w-24 h-24 bg-white rounded-[32px] flex items-center justify-center shadow-2xl shadow-amber-500/20 mx-auto mb-8 transform -rotate-3 hover:rotate-0 transition-all duration-700 overflow-hidden border-4 border-amber-50">
-             <img src="https://api.typedream.com/v0/document/public/ac662580-562a-43f1-9c3e-8f65457f002b_logo_png" alt="Logo" className="w-full h-full object-cover" />
+         <img src="/logo.svg" alt="CatCircle Logo" className="w-full h-full object-cover" />
           </div>
           <h1 className="text-4xl font-black text-gray-900 tracking-tighter mb-2">CatCircle</h1>
           <p className="text-gray-500 font-medium text-sm">Where cats lead the social life.</p>

@@ -245,7 +245,7 @@ const App: React.FC = () => {
   if (!isLoaded) return (
     <div className="min-h-screen bg-white flex flex-col items-center justify-center p-10">
        <div className="w-32 h-32 mb-8 animate-pulse">
-          <img src="https://api.typedream.com/v0/document/public/ac662580-562a-43f1-9c3e-8f65457f002b_logo_png" alt="Loading Logo" className="w-full h-full object-contain" />
+       <img src="/logo.svg" alt="CatCircle Logo" className="w-full h-full object-contain" />
        </div>
        <div className="flex space-x-2">
           <div className="w-2 h-2 bg-amber-500 rounded-full animate-bounce"></div>
