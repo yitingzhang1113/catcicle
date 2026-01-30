@@ -1,6 +1,6 @@
 
 import { Post, OwnerProfile, PurchaseRecord, ChatMessage, Community } from '../types';
-import { MOCK_POSTS, MOCK_OWNERS, MOCK_COMMUNITIES } from '../mockData';
+import { MOCK_POSTS, MOCK_OWNERS, MOCK_COMMUNITIES, MOCK_PRODUCTS } from '../mockData';
 
 const STORAGE_KEYS = {
   POSTS: 'catcircle_posts',
@@ -23,6 +23,30 @@ export const localDB = {
     }
     if (!localStorage.getItem(STORAGE_KEYS.COMMUNITIES)) {
       localStorage.setItem(STORAGE_KEYS.COMMUNITIES, JSON.stringify(MOCK_COMMUNITIES));
+    }
+
+    // Seed purchases for the demo main account so the Purchases tab isn't empty.
+    const me = MOCK_OWNERS.find(u => u.id === 'owner_me');
+    const purchasesKey = me ? `${STORAGE_KEYS.PURCHASES}_${me.id}` : null;
+    if (purchasesKey && !localStorage.getItem(purchasesKey)) {
+      const byId = new Map(MOCK_PRODUCTS.map(p => [p.id, p] as const));
+      const seed: PurchaseRecord[] = [
+        {
+          id: 'pur_seed_1',
+          product: byId.get('pr1') || MOCK_PRODUCTS[0],
+          paymentMethod: 'USD',
+          amountPaid: 12.99,
+          timestamp: Date.now() - 1000 * 60 * 60 * 24 * 12
+        },
+        {
+          id: 'pur_seed_2',
+          product: byId.get('pr2') || MOCK_PRODUCTS[1],
+          paymentMethod: 'Coins',
+          amountPaid: 1200,
+          timestamp: Date.now() - 1000 * 60 * 60 * 24 * 5
+        }
+      ];
+      localStorage.setItem(purchasesKey, JSON.stringify(seed));
     }
   },
 

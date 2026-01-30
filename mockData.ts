@@ -22,6 +22,19 @@ export const MOCK_OWNER_ME: OwnerProfile = {
       healthTags: ['Sensitive Stomach'],
       avatar: 'https://images.unsplash.com/photo-1548247416-ec66f4900b2e?q=80&w=400',
       bio: 'The namesake of this account. A true gentleman.'
+    },
+    {
+      id: 'cat_winter',
+      ownerId: 'owner_me',
+      name: 'Winter',
+      breed: 'Ragdoll',
+      age: 1,
+      gender: 'Female',
+      neutered: true,
+      personality: ['Playful', 'Curious'],
+      healthTags: [],
+      avatar: 'https://images.unsplash.com/photo-1505229772441-1d9a2c4a7f53?q=80&w=400',
+      bio: 'Tiny cloud with a big zoomies engine.'
     }
   ],
   interests: ['Ragdoll Care', 'Photography', 'Organic Food', 'Interior Design']
@@ -131,12 +144,93 @@ export const MOCK_OWNER_MAINECOON: OwnerProfile = {
   interests: ['Maine Coon', 'Grooming', 'Giant Cats']
 };
 
+export const MOCK_OWNER_SCOTTISH: OwnerProfile = {
+  id: 'owner_scottish',
+  accountName: 'FoldedEars_Mimi',
+  avatar: 'https://i.pravatar.cc/150?u=mimi',
+  bio: 'Scottish Fold household. Professional treat negotiator.',
+  coinBalance: 620,
+  followersCount: 980,
+  followingCount: 340,
+  cats: [
+    {
+      id: 'cat_mimi',
+      ownerId: 'owner_scottish',
+      name: 'Mimi',
+      breed: 'Scottish Fold',
+      age: 3,
+      gender: 'Female',
+      neutered: true,
+      personality: ['Gentle', 'Clingy'],
+      healthTags: [],
+      avatar: 'https://images.unsplash.com/photo-1519052537078-e6302a4968d4?q=80&w=400',
+      bio: 'Ears folded, heart wide open.'
+    }
+  ],
+  interests: ['Scottish Fold', 'Treats', 'Indoor Toys']
+};
+
+export const MOCK_OWNER_SIAMESE: OwnerProfile = {
+  id: 'owner_siamese',
+  accountName: 'BluePoint_Boba',
+  avatar: 'https://i.pravatar.cc/150?u=boba',
+  bio: 'Siamese vibes: talkative, dramatic, affectionate.',
+  coinBalance: 410,
+  followersCount: 1320,
+  followingCount: 610,
+  cats: [
+    {
+      id: 'cat_boba',
+      ownerId: 'owner_siamese',
+      name: 'Boba',
+      breed: 'Siamese',
+      age: 2,
+      gender: 'Male',
+      neutered: true,
+      personality: ['Chatty', 'Smart'],
+      healthTags: [],
+      avatar: 'https://images.unsplash.com/photo-1520315342629-6ea920342047?q=80&w=400',
+      bio: 'Will sing you the song of my people at 3am.'
+    }
+  ],
+  interests: ['Siamese', 'Puzzle Feeders', 'Clicker Training']
+};
+
+export const MOCK_OWNER_PERSIAN: OwnerProfile = {
+  id: 'owner_persian',
+  accountName: 'FluffMuseum_Pearl',
+  avatar: 'https://i.pravatar.cc/150?u=pearl',
+  bio: 'Persian glam, daily brushing, maximum nap energy.',
+  coinBalance: 980,
+  followersCount: 3100,
+  followingCount: 420,
+  cats: [
+    {
+      id: 'cat_pearl',
+      ownerId: 'owner_persian',
+      name: 'Pearl',
+      breed: 'Persian',
+      age: 5,
+      gender: 'Female',
+      neutered: true,
+      personality: ['Calm', 'Regal'],
+      healthTags: ['Grooming'],
+      avatar: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=400',
+      bio: 'Hair? Iconic. Attitude? Also iconic.'
+    }
+  ],
+  interests: ['Grooming', 'Luxury Beds', 'Calm Cats']
+};
+
 export const MOCK_OWNERS = [
   MOCK_OWNER_ME, 
   MOCK_OWNER_LUNA, 
   MOCK_OWNER_BENGAL, 
   MOCK_OWNER_SPHYNX, 
-  MOCK_OWNER_MAINECOON
+  MOCK_OWNER_MAINECOON,
+  MOCK_OWNER_SCOTTISH,
+  MOCK_OWNER_SIAMESE,
+  MOCK_OWNER_PERSIAN
 ];
 
 export const MOCK_COMMUNITIES: Community[] = [
@@ -235,7 +329,8 @@ export const MOCK_PRODUCTS: Product[] = [
     catCoinPrice: 500,
     category: 'Food',
     description: 'Grain-free wild salmon treats for sensitive stomachs. Rich in Omega-3.',
-    imageUrl: 'https://images.unsplash.com/photo-1589924691106-07c263544129?q=80&w=400',
+    // Unsplash images sometimes 403/hotlink-block in certain environments; use a stable placeholder.
+    imageUrl: 'https://placehold.co/800x600/png?text=Organic+Salmon+Bites',
     reviews: []
   },
   {

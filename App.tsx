@@ -38,6 +38,7 @@ const App: React.FC = () => {
   const [messageView, setMessageView] = useState<'direct' | 'groups'>('direct');
   const [chatInput, setChatInput] = useState('');
   const [chatImage, setChatImage] = useState<string | null>(null);
+  const [chatImageUrl, setChatImageUrl] = useState('');
   const [viewingProfileId, setViewingProfileId] = useState<string | null>(null);
   const [showCreateCommunity, setShowCreateCommunity] = useState(false);
   const [newCommName, setNewCommName] = useState('');
@@ -190,18 +191,23 @@ const App: React.FC = () => {
   };
 
   const handleSendChatMessage = () => {
-    if ((!chatInput.trim() && !chatImage) || !userProfile) return;
-    const newMessage: ChatMessage = { id: Date.now().toString(), senderId: userProfile.id, text: chatInput.trim() || undefined, imageUrl: chatImage || undefined, timestamp: Date.now() };
+    const imageUrl = chatImageUrl.trim() || chatImage || undefined;
+    if ((!chatInput.trim() && !imageUrl) || !userProfile) return;
+    const newMessage: ChatMessage = { id: Date.now().toString(), senderId: userProfile.id, text: chatInput.trim() || undefined, imageUrl, timestamp: Date.now() };
     if (messageView === 'direct' && activeChatTarget) {
       setChatMessages(prev => ({ ...prev, [activeChatTarget]: [...(prev[activeChatTarget] || []), newMessage] }));
-      setChatInput(''); setChatImage(null);
+      setChatInput('');
+      setChatImage(null);
+      setChatImageUrl('');
       setTimeout(() => {
         const reply: ChatMessage = { id: Date.now().toString(), senderId: activeChatTarget, text: "Meow! 🐾", timestamp: Date.now() };
         setChatMessages(prev => ({ ...prev, [activeChatTarget]: [...(prev[activeChatTarget] || []), reply] }));
       }, 1000);
     } else if (messageView === 'groups' && activeGroupTarget) {
       setGroupMessages(prev => ({ ...prev, [activeGroupTarget]: [...(prev[activeGroupTarget] || []), newMessage] }));
-      setChatInput(''); setChatImage(null);
+      setChatInput('');
+      setChatImage(null);
+      setChatImageUrl('');
     }
   };
 
@@ -290,7 +296,7 @@ const App: React.FC = () => {
         {activeTab === 'chats' && (
           <div className="max-w-5xl mx-auto h-[700px] flex bg-white rounded-[40px] border overflow-hidden shadow-2xl">
              <div className="w-80 border-r bg-gray-50/10 flex flex-col"><div className="p-6 border-b bg-white flex space-x-2"><button onClick={() => { setMessageView('direct'); setActiveGroupTarget(null); }} className={`flex-1 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest ${messageView === 'direct' ? 'bg-amber-500 text-white' : 'bg-gray-100 text-gray-400'}`}>Direct</button><button onClick={() => { setMessageView('groups'); setActiveChatTarget(null); }} className={`flex-1 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest ${messageView === 'groups' ? 'bg-amber-500 text-white' : 'bg-gray-100 text-gray-400'}`}>Groups</button></div><div className="flex-1 overflow-y-auto">{messageView === 'direct' ? chatList.map(oid => { const owner = MOCK_OWNERS.find(o => o.id === oid); if (!owner) return null; const isActive = activeChatTarget === oid; return <button key={oid} onClick={() => setActiveChatTarget(oid)} className={`w-full p-6 flex items-center space-x-4 border-b ${isActive ? 'bg-amber-50 border-r-4 border-amber-500' : 'bg-white'}`}><img src={owner.avatar} className="w-12 h-12 rounded-2xl object-cover" /><p className="font-black text-gray-900 text-sm">{owner.accountName}</p></button>; }) : myCommunities.map(comm => { const isActive = activeGroupTarget === comm.id; return <button key={comm.id} onClick={() => setActiveGroupTarget(comm.id)} className={`w-full p-6 flex items-center space-x-4 border-b ${isActive ? 'bg-amber-50 border-r-4 border-amber-500' : 'bg-white'}`}><img src={comm.avatar} className="w-12 h-12 rounded-2xl object-cover" /><p className="font-black text-gray-900 text-sm truncate">{comm.name}</p></button>; })}</div></div>
-             <div className="flex-1 flex flex-col bg-white">{(activeChatTarget || activeGroupTarget) ? <div className="h-full flex flex-col"><div className="p-6 border-b flex items-center space-x-4"><img src={activeChatTarget ? MOCK_OWNERS.find(o => o.id === activeChatTarget)?.avatar : communities.find(c => c.id === activeGroupTarget)?.avatar} className="w-10 h-10 rounded-xl" /><h4 className="font-black text-gray-900">{activeChatTarget ? MOCK_OWNERS.find(o => o.id === activeChatTarget)?.accountName : communities.find(c => c.id === activeGroupTarget)?.name}</h4></div><div className="flex-1 p-8 overflow-y-auto space-y-4 bg-gray-50/20">{(activeChatTarget ? (chatMessages[activeChatTarget] || []) : (groupMessages[activeGroupTarget!] || [])).map(m => { const isMe = m.senderId === userProfile.id; const sender = MOCK_OWNERS.find(o => o.id === m.senderId) || (m.senderId === userProfile.id ? userProfile : null); return <div key={m.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}><div className="max-w-[70%]">{!isMe && messageView === 'groups' && <p className="text-[8px] font-black text-amber-600 uppercase mb-1">{sender?.accountName}</p>}<div className={`p-4 rounded-3xl ${isMe ? 'bg-amber-500 text-white rounded-br-none' : 'bg-white text-gray-800 border rounded-bl-none'}`}>{m.imageUrl && <img src={m.imageUrl} className="rounded-xl mb-2" />}<p className="text-sm font-medium">{m.text}</p></div></div></div>; })}</div><div className="p-6 border-t"><div className="flex space-x-2"><input className="flex-1 bg-gray-100 rounded-2xl p-4 text-sm font-medium border-none outline-none focus:ring-2 focus:ring-amber-500" placeholder="Meow..." value={chatInput} onChange={e => setChatInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSendChatMessage()} /><button onClick={handleSendChatMessage} className="bg-amber-500 text-white w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg">🚀</button></div></div></div> : <div className="flex-1 flex flex-col items-center justify-center p-20 text-center text-gray-300"><p className="text-6xl mb-6">💬</p><p className="font-black uppercase tracking-[0.2em] text-[10px]">Select a conversation</p></div>}</div>
+             <div className="flex-1 flex flex-col bg-white">{(activeChatTarget || activeGroupTarget) ? <div className="h-full flex flex-col"><div className="p-6 border-b flex items-center space-x-4"><img src={activeChatTarget ? MOCK_OWNERS.find(o => o.id === activeChatTarget)?.avatar : communities.find(c => c.id === activeGroupTarget)?.avatar} className="w-10 h-10 rounded-xl" /><h4 className="font-black text-gray-900">{activeChatTarget ? MOCK_OWNERS.find(o => o.id === activeChatTarget)?.accountName : communities.find(c => c.id === activeGroupTarget)?.name}</h4></div><div className="flex-1 p-8 overflow-y-auto space-y-4 bg-gray-50/20">{(activeChatTarget ? (chatMessages[activeChatTarget] || []) : (groupMessages[activeGroupTarget!] || [])).map(m => { const isMe = m.senderId === userProfile.id; const sender = MOCK_OWNERS.find(o => o.id === m.senderId) || (m.senderId === userProfile.id ? userProfile : null); return <div key={m.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}><div className="max-w-[70%]">{!isMe && messageView === 'groups' && <p className="text-[8px] font-black text-amber-600 uppercase mb-1">{sender?.accountName}</p>}<div className={`p-4 rounded-3xl ${isMe ? 'bg-amber-500 text-white rounded-br-none' : 'bg-white text-gray-800 border rounded-bl-none'}`}>{m.imageUrl && <img src={m.imageUrl} className="rounded-xl mb-2 max-h-64 object-cover" />}{m.text && <p className="text-sm font-medium">{m.text}</p>}</div></div></div>; })}</div><div className="p-6 border-t"><div className="space-y-3"><input className="w-full bg-gray-100 rounded-2xl p-3 text-sm font-medium border-none outline-none focus:ring-2 focus:ring-amber-500" placeholder="Paste image URL (optional)" value={chatImageUrl} onChange={e => setChatImageUrl(e.target.value)} /><div className="flex space-x-2"><input className="flex-1 bg-gray-100 rounded-2xl p-4 text-sm font-medium border-none outline-none focus:ring-2 focus:ring-amber-500" placeholder="Meow..." value={chatInput} onChange={e => setChatInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSendChatMessage()} /><button onClick={handleSendChatMessage} className="bg-amber-500 text-white w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg">🚀</button></div></div></div></div> : <div className="flex-1 flex flex-col items-center justify-center p-20 text-center text-gray-300"><p className="text-6xl mb-6">💬</p><p className="font-black uppercase tracking-[0.2em] text-[10px]">Select a conversation</p></div>}</div>
           </div>
         )}
 
