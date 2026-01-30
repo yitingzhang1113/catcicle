@@ -41,7 +41,7 @@ A Vite + React + TypeScript web app for cat lovers — explore a feed, discover 
    Then set:
 
    ```
-   GEMINI_API_KEY=YOUR_KEY_HERE
+   VITE_API_KEY=YOUR_KEY_HERE
    ```
 
    If you don’t have AI configured, the app should still run, but AI features may be disabled.

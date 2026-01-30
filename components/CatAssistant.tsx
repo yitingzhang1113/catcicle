@@ -11,6 +11,7 @@ interface CatAssistantProps {
 }
 
 const CatAssistant: React.FC<CatAssistantProps> = ({ onShareToCommunity, products, onGoToMall }) => {
+  const hasApiKey = Boolean(import.meta.env.VITE_API_KEY);
   const [messages, setMessages] = useState<AssistantMessage[]>([
     {
       id: '1',
@@ -58,10 +59,12 @@ const CatAssistant: React.FC<CatAssistantProps> = ({ onShareToCommunity, product
       setMessages(prev => [...prev, assistantMsg]);
     } catch (e) {
       console.error(e);
+      const errorDetails = e instanceof Error ? e.message : String(e);
+      const errorSuffix = import.meta.env.DEV ? `\n\nDetails: ${errorDetails}` : '';
       const errorMsg: AssistantMessage = {
         id: 'error',
         role: 'assistant',
-        content: "I'm having trouble connecting to the feline cloud. Please try again later!",
+        content: `I'm having trouble connecting to the feline cloud. Please try again later!${errorSuffix}`,
         timestamp: Date.now()
       };
       setMessages(prev => [...prev, errorMsg]);
@@ -98,9 +101,16 @@ const CatAssistant: React.FC<CatAssistantProps> = ({ onShareToCommunity, product
             <p className="text-[10px] font-black uppercase tracking-widest text-white/70">Medical RAG & Smart Shopping</p>
           </div>
         </div>
-        <div className="flex space-x-2">
+        <div className="flex items-center space-x-2">
             <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
             <span className="text-[10px] font-black uppercase tracking-widest opacity-80">Online</span>
+            {import.meta.env.DEV && (
+              <span className={`ml-2 text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-full border ${
+                hasApiKey ? 'border-emerald-200 text-emerald-100' : 'border-rose-200 text-rose-100'
+              }`}>
+                {hasApiKey ? 'API Key: Detected' : 'API Key: Missing'}
+              </span>
+            )}
         </div>
       </div>
 

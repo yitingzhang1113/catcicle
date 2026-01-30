@@ -2,51 +2,94 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { RiskLevel, PostType, Product } from "../types";
 
+// ==========================================
+// 【本地使用指南】
+// 1) 如果你本地只想快速测试，可以手动填入 key：
+// const API_KEY_OVERRIDE = "YOUR_KEY";
+// 2) 或在浏览器控制台设置：localStorage.setItem('CAT_CIRCLE_KEY', '你的Key')
+// 3) Vite 环境推荐使用 .env / .env.local：VITE_API_KEY=你的Key
+// ==========================================
+const API_KEY_OVERRIDE = "";
+
+const sanitizeKey = (key?: string | null) => key?.trim().replace(/^['"]|['"]$/g, "");
+const FLASH_MODEL = sanitizeKey(import.meta.env?.VITE_GEMINI_FLASH_MODEL) || "gemini-1.0-pro";
+const PRO_MODEL = sanitizeKey(import.meta.env?.VITE_GEMINI_PRO_MODEL) || "gemini-1.0-pro";
+
+const getApiKey = (): string => {
+  const overrideKey = sanitizeKey(API_KEY_OVERRIDE);
+  if (overrideKey) return overrideKey;
+
+  const localKey = typeof window !== "undefined" ? sanitizeKey(localStorage.getItem("CAT_CIRCLE_KEY")) : undefined;
+  if (localKey) return localKey;
+
+  const envKey = sanitizeKey(
+    (typeof process !== "undefined" && process.env?.API_KEY) ||
+      (typeof import.meta !== "undefined" && import.meta.env?.VITE_API_KEY)
+  );
+
+  if (!envKey) {
+    throw new Error("Missing VITE_API_KEY. Create a .env.local file with VITE_API_KEY=YOUR_KEY.");
+  }
+
+  return envKey;
+};
+
 // Simulated Professional Veterinary Knowledge Base for RAG
 const VET_KNOWLEDGE_BASE = [
   {
     topic: "Urinary Issues",
-    content: "Male cats are prone to urethral obstructions. Straining to urinate, frequent trips to the litter box without output, or yowling while urinating are life-threatening emergencies requiring immediate vet intervention."
+    content:
+      "Male cats are prone to urethral obstructions. Straining to urinate, frequent trips to the litter box without output, or yowling while urinating are life-threatening emergencies requiring immediate vet intervention."
   },
   {
     topic: "Loss of Appetite",
-    content: "If a cat doesn't eat for more than 24-48 hours, they are at high risk for Hepatic Lipidosis (fatty liver disease), which can be fatal. Inappetence in cats is always a clinically significant symptom."
+    content:
+      "If a cat doesn't eat for more than 24-48 hours, they are at high risk for Hepatic Lipidosis (fatty liver disease), which can be fatal. Inappetence in cats is always a clinically significant symptom."
   },
   {
     topic: "Toxic Plants",
-    content: "Lilies (Lilium and Hemerocallis species) are extremely toxic to cats. Ingesting even a small amount of pollen or water from a vase can cause acute kidney failure. Immediate decontamination is required."
+    content:
+      "Lilies (Lilium and Hemerocallis species) are extremely toxic to cats. Ingesting even a small amount of pollen or water from a vase can cause acute kidney failure. Immediate decontamination is required."
   },
   {
     topic: "Stress and Behavior",
-    content: "Cats are creatures of habit. Changes in environment (moving, new pets, construction) often lead to stress-induced behaviors like over-grooming, hiding, or urinating outside the box (cystitis)."
+    content:
+      "Cats are creatures of habit. Changes in environment (moving, new pets, construction) often lead to stress-induced behaviors like over-grooming, hiding, or urinating outside the box (cystitis)."
   },
   {
     topic: "Vomiting",
-    content: "Occasional hairballs are normal, but frequent vomiting (more than once a week) or projectile vomiting can indicate inflammatory bowel disease, kidney issues, or hyperthyroidism."
+    content:
+      "Occasional hairballs are normal, but frequent vomiting (more than once a week) or projectile vomiting can indicate inflammatory bowel disease, kidney issues, or hyperthyroidism."
   },
   {
     topic: "Dental Health",
-    content: "Periodontal disease affects 70% of cats by age 3. Bad breath, drooling, or dropping food can indicate painful resorptive lesions or gingivitis requiring professional cleaning."
+    content:
+      "Periodontal disease affects 70% of cats by age 3. Bad breath, drooling, or dropping food can indicate painful resorptive lesions or gingivitis requiring professional cleaning."
   }
 ];
 
 function retrieveContext(query: string): string {
   const keywords = query.toLowerCase();
-  const relevantDocs = VET_KNOWLEDGE_BASE.filter(doc => 
-    doc.topic.toLowerCase().split(' ').some(word => keywords.includes(word)) ||
-    doc.content.toLowerCase().includes(keywords)
+  const relevantDocs = VET_KNOWLEDGE_BASE.filter(
+    (doc) =>
+      doc.topic.toLowerCase().split(" ").some((word) => keywords.includes(word)) ||
+      doc.content.toLowerCase().includes(keywords)
   );
-  
-  if (relevantDocs.length === 0) return "Consult general feline veterinary standards for common health and behavioral issues.";
-  
-  return relevantDocs.map(doc => `[Source: ${doc.topic}] ${doc.content}`).join('\n');
+
+  if (relevantDocs.length === 0) {
+    return "Consult general feline veterinary standards for common health and behavioral issues.";
+  }
+
+  return relevantDocs.map((doc) => `[Source: ${doc.topic}] ${doc.content}`).join("\n");
 }
 
 export const geminiService = {
   async triageQuery(query: string) {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const key = getApiKey();
+
+    const ai = new GoogleGenAI({ apiKey: key });
     const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
+  model: FLASH_MODEL,
       contents: `Evaluate the following cat-related query: "${query}". 
       Return a JSON object with:
       1. category: "HEALTH" (medical risk) or "BEHAVIOR" (care/habit)
@@ -72,15 +115,29 @@ export const geminiService = {
     return JSON.parse(response.text);
   },
 
-  async generatePostDraft(rawContent: string, type: PostType, style: 'Cute' | 'Witty' | 'Pro' | 'Story' = 'Cute') {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-    
+  async generatePostDraft(
+    rawContent: string,
+    type: PostType,
+    style: "Cute" | "Witty" | "Pro" | "Story" = "Cute"
+  ) {
+    const key = getApiKey();
+
+    const ai = new GoogleGenAI({ apiKey: key });
+
     let styleInstruction = "";
-    switch(style) {
-      case 'Witty': styleInstruction = "Make it funny, sassy, slightly sarcastic, and from the cat's perspective if possible."; break;
-      case 'Pro': styleInstruction = "Make it informative, structured, clear, and professional like an experienced vet tech or cat expert."; break;
-      case 'Story': styleInstruction = "Make it an engaging, warm narrative with emotional depth and descriptive language."; break;
-      default: styleInstruction = "Make it extremely cute, friendly, enthusiastic, and full of feline-themed emojis."; break;
+    switch (style) {
+      case "Witty":
+        styleInstruction = "Make it funny, sassy, slightly sarcastic, and from the cat's perspective if possible.";
+        break;
+      case "Pro":
+        styleInstruction = "Make it informative, structured, clear, and professional like an experienced vet tech or cat expert.";
+        break;
+      case "Story":
+        styleInstruction = "Make it an engaging, warm narrative with emotional depth and descriptive language.";
+        break;
+      default:
+        styleInstruction = "Make it extremely cute, friendly, enthusiastic, and full of feline-themed emojis.";
+        break;
     }
 
     const prompt = `Act as an expert social media copywriter for a cat community.
@@ -94,19 +151,23 @@ export const geminiService = {
     Output ONLY the polished text.`;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
-      contents: prompt,
+  model: FLASH_MODEL,
+      contents: prompt
     });
     return response.text;
   },
 
   async getAssistantAdvice(query: string, history: any[], products: Product[]) {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const key = getApiKey();
+
+    const ai = new GoogleGenAI({ apiKey: key });
     const retrievedContext = retrieveContext(query);
-    const productContext = products.map(p => `- ID: ${p.id}, Name: ${p.name}, Price: ${p.usdPrice}USD, Desc: ${p.description}`).join('\n');
+    const productContext = products
+      .map((p) => `- ID: ${p.id}, Name: ${p.name}, Price: ${p.usdPrice}USD, Desc: ${p.description}`)
+      .join("\n");
 
     const response = await ai.models.generateContent({
-      model: 'gemini-3-pro-preview',
+  model: PRO_MODEL,
       contents: `You are the CatCircle AI Assistant. Your mission is two-fold:
       1. Provide expert-level feline health and behavioral advice based on professional veterinary knowledge.
       2. Act as a personal shopping concierge by recommending relevant products from our in-app Mall that directly address the user's concerns.
